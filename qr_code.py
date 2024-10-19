@@ -1,31 +1,30 @@
-from flask import Flask, render_template, request, send_file
 import qrcode
 
-app = Flask(__name__)
+# Getting user input for the QR Code
+data = input("Enter the link you want to generate a QR code for: ")
+qr_color = input("In which color you want your QR Code: ")
+box_height = int(input("Please share the height in cm: "))
+border_size = int(input("Width Size: "))
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+# Initializing the QRCode object 
+qr = qrcode.QRCode(
+    version=1,
+    error_correction=qrcode.constants.ERROR_CORRECT_L,
+    box_size=box_height,
+    border=border_size
+)
 
-@app.route('/generate', methods=['POST'])
-def generate_qr():
-    data = request.form.get('data')  # Get data from the form
+# Add the data (user input link)
+qr.add_data(f"https://" + data)
+qr.make(fit=True)
 
-    # Create a QR code
-    qr = qrcode.QRCode(
-        version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_H,
-        box_size=10,
-        border=4
-    )
-    qr.add_data(data)
-    qr.make(fit=True)
+# Creating the image and setting background colors
+img = qr.make_image(fill="black", back_color=qr_color)
 
-    # Generate and save the QR code
-    img = qr.make_image(fill_color="black", back_color="white")
-    img.save("static/qr_code.png")  # Save the image in the static folder
+# Saved the generated QR code as an image
+img.save("generated_QRCode.png")
 
-    return render_template('index.html', qr_code_image="static/qr_code.png")
+print("The QR code has been generated successfully. Please check the file manager.")
 
-if __name__ == '__main__':
-    app.run(debug=True)
+
+# made by shiwam chouriya 💫
